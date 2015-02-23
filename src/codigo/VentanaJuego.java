@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.Timer;
@@ -91,6 +92,29 @@ public class VentanaJuego extends javax.swing.JFrame {
             g2.drawImage(disparoAux.imagenDisparo, disparoAux.getX(),disparoAux.getY()-miNave.imagenNave.getHeight(null),null);
         }
     }
+    
+    private void chequeaColision()
+    {
+        Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();
+        
+        Rectangle2D.Double rectanguloDisparo = new Rectangle2D.Double();
+        
+        for(int j = 0; j<listaDisparos.size();j++)
+        {
+            Disparo d= listaDisparos.get(j);
+            rectanguloDisparo.setFrame(d.getX(),d.getY(),d.imagenDisparo.getWidth(null),d.imagenDisparo.getHeight(null));
+        for(int i=0; i<listaMarcianos.size();i++)
+        {
+            Marciano m = listaMarcianos.get(i);
+            rectanguloMarciano.setFrame(m.getX(),m.getY(),m.ancho,m.imagen1.getHeight(null));
+            if(rectanguloDisparo.intersects(rectanguloMarciano))
+            {
+                listaMarcianos.remove(i);
+                listaDisparos.remove(j);           
+            }
+        }
+        }
+    }
     private void bucleDelJuego()
     {
         //apuntamos al buffer
@@ -104,7 +128,7 @@ public class VentanaJuego extends javax.swing.JFrame {
         pintaMarcianos(g2);
         pintaDisparos(g2);
         pintaNave(g2);
-        
+        chequeaColision();
        g2 = (Graphics2D) jPanel1.getGraphics();
        g2.drawImage(buffer,0,0,null);
     }           
