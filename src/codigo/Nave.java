@@ -26,7 +26,7 @@ public class Nave {
     public Nave(int ancho){
         anchoMaximo = ancho;
         try {
-            imagenNave = ImageIO.read((getClass().getResource("/Marcianitos/nave2.png")));
+            imagenNave = ImageIO.read((getClass().getResource("/Marcianitos/naveSamus.png")));
         } catch (IOException ex) {
             
         }

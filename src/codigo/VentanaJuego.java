@@ -35,6 +35,10 @@ public class VentanaJuego extends javax.swing.JFrame {
     boolean pulsadaDerecha = false, pulsadaIzquierda = false;
     boolean cambiaVelocidadIzquierda = false;
     ArrayList<Disparo> listaDisparos = new ArrayList();
+    
+    //array de explosiones dinámico
+    ArrayList<Explosion> listaExplosiones = new ArrayList();
+    
     Disparo disparoAux = new Disparo();
     
     ArrayList<Marciano> listaMarcianos = new ArrayList();
@@ -109,11 +113,39 @@ public class VentanaJuego extends javax.swing.JFrame {
             rectanguloMarciano.setFrame(m.getX(),m.getY(),m.ancho,m.imagen1.getHeight(null));
             if(rectanguloDisparo.intersects(rectanguloMarciano))
             {
+                guardaExplosion(m);
                 listaMarcianos.remove(i);
-                listaDisparos.remove(j);           
+                listaDisparos.remove(j); 
             }
         }
         }
+    }
+    private void guardaExplosion(Marciano m)
+    {
+        Explosion e = new Explosion();
+        e.setX(m.getX());
+        e.setY(m.getY());
+            listaExplosiones.add(e);
+   
+    }
+    private void pintaExplosion(Graphics2D g2)
+    {
+        for(int i=0; i<listaExplosiones.size();i++)
+        {
+            Explosion e = listaExplosiones.get(i);
+            if(e.getTiempoDeVida()<=10)
+            {
+                g2.drawImage(e.imagen2, e.getX(), e.getY(),null);
+            }
+            else
+                g2.drawImage(e.imagen1, e.getX(), e.getY(),null);
+             
+            e.setTiempoDeVida(e.getTiempoDeVida()-1);
+            if(e.getTiempoDeVida() <=0)
+                listaExplosiones.remove(i);
+        }
+    
+    
     }
     private void bucleDelJuego()
     {
@@ -129,6 +161,7 @@ public class VentanaJuego extends javax.swing.JFrame {
         pintaDisparos(g2);
         pintaNave(g2);
         chequeaColision();
+        pintaExplosion(g2);
        g2 = (Graphics2D) jPanel1.getGraphics();
        g2.drawImage(buffer,0,0,null);
     }           

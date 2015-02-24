@@ -19,7 +19,7 @@ public class Marciano {
     public Marciano(){
        
         try {
-            imagen1 = ImageIO.read((getClass().getResource("/Marcianitos/marcianito1.png")));
+            imagen1 = ImageIO.read((getClass().getResource("/Marcianitos/metroide.png")));
             imagen2 = ImageIO.read((getClass().getResource("/Marcianitos/marcianito2.png")));
             ancho = imagen1.getWidth(null);
         } catch (IOException ex) {
