@@ -59,7 +59,18 @@ public class VentanaJuego extends javax.swing.JFrame {
                 cambiaVelocidadIzquierda = true;
             else if(m.getX()<0)
                 cambiaVelocidadIzquierda = true;
-            g2.drawImage(m.imagen1, m.getX(), m.getY(),null);
+            if(m.isCambioSprite() == false){
+                g2.drawImage(m.imagen1, m.getX(), m.getY(),null);
+                m.setTiempoDeCambio(m.getTiempoDeCambio()-1);
+                if(m.getTiempoDeCambio() <=0)
+                    m.setCambioSprite(true);                   
+            }
+            else{
+             g2.drawImage(m.imagen2, m.getX(), m.getY(),null);
+                m.setTiempoDeCambio(m.getTiempoDeCambio()+1);
+                if(m.getTiempoDeCambio() >=50)
+                    m.setCambioSprite(false);
+            }
         }   
         if(cambiaVelocidadIzquierda){
             velocidadMarciano = -velocidadMarciano;
@@ -107,6 +118,7 @@ public class VentanaJuego extends javax.swing.JFrame {
         {
             Disparo d= listaDisparos.get(j);
             rectanguloDisparo.setFrame(d.getX(),d.getY(),d.imagenDisparo.getWidth(null),d.imagenDisparo.getHeight(null));
+            boolean disparoABorrar = false;
         for(int i=0; i<listaMarcianos.size();i++)
         {
             Marciano m = listaMarcianos.get(i);
@@ -115,9 +127,12 @@ public class VentanaJuego extends javax.swing.JFrame {
             {
                 guardaExplosion(m);
                 listaMarcianos.remove(i);
-                listaDisparos.remove(j); 
+                //listaDisparos.remove(j); 
+                disparoABorrar = true;
             }
         }
+        if(disparoABorrar)
+            listaDisparos.remove(j);
         }
     }
     private void guardaExplosion(Marciano m)
