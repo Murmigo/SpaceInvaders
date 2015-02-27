@@ -7,12 +7,15 @@ package codigo;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 import javax.swing.Timer;
 
 /**
@@ -24,7 +27,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     int anchoVentana = 600;
     int altoVentana = 500;
     int velocidadMarciano=2;
-    int velocidadDisparo = 3;
+    int velocidadDisparo = 10;
     
     //buffer para dibujar
     BufferedImage buffer = null;
@@ -39,9 +42,16 @@ public class VentanaJuego extends javax.swing.JFrame {
     //array de explosiones dinámico
     ArrayList<Explosion> listaExplosiones = new ArrayList();
     
+    //controla el tiempo de juego
+    boolean gameOver = false;
+    
     Disparo disparoAux = new Disparo();
     
     ArrayList<Marciano> listaMarcianos = new ArrayList();
+    
+    //variables para cargar los sonidos
+    //Clip sonidoDisparo;
+    
     
     Timer temporizador= new Timer(10, new ActionListener(){
     @Override
@@ -68,7 +78,7 @@ public class VentanaJuego extends javax.swing.JFrame {
             else{
              g2.drawImage(m.imagen2, m.getX(), m.getY(),null);
                 m.setTiempoDeCambio(m.getTiempoDeCambio()+1);
-                if(m.getTiempoDeCambio() >=50)
+                if(m.getTiempoDeCambio() >=25)
                     m.setCambioSprite(false);
             }
         }   
@@ -87,10 +97,10 @@ public class VentanaJuego extends javax.swing.JFrame {
     {
         if(pulsadaIzquierda)
         {
-            miNave.setX(miNave.getX() - 1);
+            miNave.setX(miNave.getX() - 2);
         }else if(pulsadaDerecha)
         {
-            miNave.setX(miNave.getX() + 1);
+            miNave.setX(miNave.getX() + 2);
         }
         
         g2.drawImage(miNave.imagenNave, miNave.getX(), miNave.getY()- miNave.imagenNave.getHeight(null), null);
@@ -107,12 +117,26 @@ public class VentanaJuego extends javax.swing.JFrame {
             g2.drawImage(disparoAux.imagenDisparo, disparoAux.getX(),disparoAux.getY()-miNave.imagenNave.getHeight(null),null);
         }
     }
+    private void chequeaColisionMarcianoConNave()
+    {
+     Rectangle2D.Double rectanguloNave = new Rectangle2D.Double();
+     Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();
+     rectanguloNave.setFrame(miNave.getX(),miNave.getY(),miNave.getAnchoNave(),miNave.imagenNave.getHeight(null));
+     for(int i=0; i<listaMarcianos.size();i++)
+        {
+            Marciano m = listaMarcianos.get(i);
+            rectanguloMarciano.setFrame(m.getX(),m.getY(),m.ancho,m.imagen1.getHeight(null));
+            if(rectanguloNave.intersects(rectanguloMarciano))
+                gameOver=true;                         
+        }
+    }
     
     private void chequeaColision()
     {
-        Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();
-        
+        Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();       
         Rectangle2D.Double rectanguloDisparo = new Rectangle2D.Double();
+        
+
         
         for(int j = 0; j<listaDisparos.size();j++)
         {
@@ -129,10 +153,17 @@ public class VentanaJuego extends javax.swing.JFrame {
                 listaMarcianos.remove(i);
                 //listaDisparos.remove(j); 
                 disparoABorrar = true;
+                
             }
         }
-        if(disparoABorrar)
-            listaDisparos.remove(j);
+            if(disparoABorrar){
+             listaDisparos.remove(j);
+                disparoABorrar = false;
+                if(velocidadMarciano <= 5 && velocidadMarciano>0)
+                    velocidadMarciano++;
+                else if(velocidadMarciano >= -5 && velocidadMarciano<0)
+                    velocidadMarciano--;
+            }
         }
     }
     private void guardaExplosion(Marciano m)
@@ -141,6 +172,7 @@ public class VentanaJuego extends javax.swing.JFrame {
         e.setX(m.getX());
         e.setY(m.getY());
             listaExplosiones.add(e);
+            e.sonidoExplosion.start();
    
     }
     private void pintaExplosion(Graphics2D g2)
@@ -162,10 +194,22 @@ public class VentanaJuego extends javax.swing.JFrame {
     
     
     }
+    private void finDePartida(Graphics2D g2)
+    { 
+            try {
+           Image imagenLooser = ImageIO.read((getClass().getResource("/Marcianitos/looser.png")));
+           g2.drawImage(imagenLooser,100, 100, null);
+        } catch (IOException ex) {
+            
+        }
+    }
     private void bucleDelJuego()
     {
         //apuntamos al buffer
         Graphics2D g2 = (Graphics2D) buffer.getGraphics();
+        chequeaColisionMarcianoConNave();
+        if(!gameOver){
+
         
         //pinto un rectángulo negro del tamaño de la ventana
         g2.setColor(Color.BLACK);
@@ -177,8 +221,11 @@ public class VentanaJuego extends javax.swing.JFrame {
         pintaNave(g2);
         chequeaColision();
         pintaExplosion(g2);
-       g2 = (Graphics2D) jPanel1.getGraphics();
-       g2.drawImage(buffer,0,0,null);
+        g2 = (Graphics2D) jPanel1.getGraphics();
+        g2.drawImage(buffer,0,0,null);
+       
+        } else
+            finDePartida(g2);      
     }           
             });
     /**
@@ -208,6 +255,8 @@ public class VentanaJuego extends javax.swing.JFrame {
                 listaMarcianos.add(m);
             }       
         }
+        //precargo los sonidos para evitar el paron inicial
+
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -270,12 +319,13 @@ public class VentanaJuego extends javax.swing.JFrame {
         pulsadaDerecha = false;
         pulsadaIzquierda= false;
        }
-        if(evt.getKeyCode() == KeyEvent.VK_W && listaDisparos.size()<=5)
+        if(evt.getKeyCode() == KeyEvent.VK_W && listaDisparos.size()<1)
          {
              
             Disparo d = new Disparo();
             d.setX( miNave.getX() +  (miNave.getAnchoNave()/2)-3);
-            d.setY(miNave.getY()+d.imagenDisparo.getHeight(null)/2);           
+            d.setY(miNave.getY()+d.imagenDisparo.getHeight(null)/2);
+            d.sonidoDisparo.start();
             listaDisparos.add(d);
          }
     }//GEN-LAST:event_formKeyReleased

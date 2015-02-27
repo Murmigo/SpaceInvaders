@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 public class Marciano {
    public Image imagen1 =null;
    public Image imagen2 =null;
-   private int tiempoDeCambio = 2;
+   private int tiempoDeCambio = 30;
    private boolean cambioSprite = false;
 
     

@@ -8,6 +8,8 @@ package codigo;
 import java.awt.Image;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 /**
  *
@@ -16,6 +18,8 @@ import javax.imageio.ImageIO;
 public class Explosion {
    public Image imagen1 =null;
    public Image imagen2 =null;
+   
+   Clip sonidoExplosion;
    
     private int x = 0;
     private int y = 0;
@@ -48,9 +52,12 @@ public class Explosion {
     public Explosion(){
        
         try {
+            sonidoExplosion = AudioSystem.getClip();
+            sonidoExplosion.open(AudioSystem.getAudioInputStream(getClass().getResource("/sonidos/explosion.wav")));
+            
             imagen1 = ImageIO.read((getClass().getResource("/Marcianitos/e1.png")));
             imagen2 = ImageIO.read((getClass().getResource("/Marcianitos/e2.png")));
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             
         }
        
